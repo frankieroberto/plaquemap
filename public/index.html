@@ -9,6 +9,7 @@
 <body>
 
 <div id="map" style="height: 500px"></div>
+<p id="info"></p>
 
 <script>
 var map;
@@ -27,6 +28,7 @@ function stateChanged() {
   if (ajaxRequest.readyState==4) {
     //use the info here that was returned
     if (ajaxRequest.status==200) {
+
       plotlist=eval("(" + ajaxRequest.responseText + ")");
       removeMarkers();
       console.log(plotlist.length)
@@ -46,6 +48,12 @@ function stateChanged() {
         plotmark.bindPopup('<h3>'+plaque.title+'</h3><p>'+text+'</p><p><a href="http://openplaques.org/plaques/'+plaque.id+'">View on Open Plaques</a></p>');
         plotlayers.push(plotmark);
       }
+
+      var p = document.getElementById("info");
+      if (p) {
+        p.innerHTML = "";
+      }
+
     }
   }
 }
@@ -70,6 +78,11 @@ function askForPlots() {
   ajaxRequest.onreadystatechange = stateChanged;
   ajaxRequest.open('GET', msg, true);
   ajaxRequest.send(null);
+  var p = document.getElementById("info");
+  if (p) {
+
+    p.innerHTML = p.innerHTML + " Loading";
+  }
 }
 
 function initmap() {
