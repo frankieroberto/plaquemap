@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div id="map" style="width: 600px; height: 400px"></div>
+<div id="map" style="height: 500px"></div>
 
 <script>
 var map;
@@ -29,12 +29,21 @@ function stateChanged() {
     if (ajaxRequest.status==200) {
       plotlist=eval("(" + ajaxRequest.responseText + ")");
       removeMarkers();
+      console.log(plotlist.length)
       for (i=0;i<plotlist.length;i++) {
+
+        var plaque = plotlist[i].plaque;
         var plotll = new L.LatLng(plotlist[i].plaque.latitude,plotlist[i].plaque.longitude, true);
         var plotmark = new L.Marker(plotll);
         plotmark.data=plotlist[i];
         map.addLayer(plotmark);
-        plotmark.bindPopup("<h3>"+plotlist[i].name+"</h3>"+plotlist[i].details);
+
+        if (plaque.inscription.length > 200) {
+          var text = plaque.inscription.substring(0,200) + "...";
+        } else {
+          var text = plaque.inscription;
+        }
+        plotmark.bindPopup('<h3>'+plaque.title+'</h3><p>'+text+'</p><p><a href="http://openplaques.org/plaques/'+plaque.id+'">View on Open Plaques</a></p>');
         plotlayers.push(plotmark);
       }
     }
@@ -54,10 +63,9 @@ function askForPlots() {
   var bounds=map.getBounds();
   var minll=bounds.getSouthWest();
   var maxll=bounds.getNorthEast();
-  var msg='http://openplaques.org/plaques.json?box=['+maxll.lat+','+minll.lng+'],['+minll.lat+','+maxll.lng+']&limit=100';
+  var msg='http://openplaques.org/plaques.json?box=['+maxll.lat+','+minll.lng+'],['+minll.lat+','+maxll.lng+']&limit=99';
 
 
-  console.log(msg);
 //   var msg = 'http://openplaques.org/plaques.json?box=[51.5482,-0.1617],[51.5282,-0.1217]'
   ajaxRequest.onreadystatechange = stateChanged;
   ajaxRequest.open('GET', msg, true);
@@ -90,7 +98,7 @@ function initmap() {
 
 
   // start the map in London
-  map.setView(new L.LatLng(51.54281206119232,-0.16788482666015625),15);
+  map.setView(new L.LatLng(51.54281206119232,-0.16788482666015625),12);
   map.addLayer(mapquest);
   askForPlots();
   map.on('moveend', onMapMove);
